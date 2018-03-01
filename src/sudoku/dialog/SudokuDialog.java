@@ -24,6 +24,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import java.util.Random;
+
 import sudoku.model.Board;
 
 /**
@@ -121,20 +123,36 @@ public class SudokuDialog extends JFrame {
     	boolean newGame = false;
     	int option;
         //if game isn't over, ask user to confirm.
-    	while (!newGame) {
-    		//prompt user for confirmation
-    		option = JOptionPane.showConfirmDialog(frame, "Really asshole?", "Fuck you", JOptionPane.YES_NO_OPTION);
-    		if (option == 1) {
-    			showMessage("That's right."); //take me out please
-    			break;
-    		}else {
-    			newGame = true;
-    		}
-    	}if (newGame) {
-    		showMessage("New size: " + size);
-    		new SudokuDialog(size);
-    	}
-    	
+    	//prompt user for confirmation
+		option = JOptionPane.showConfirmDialog(frame, "NEW GAME?!?!?!?!?", "Una pregunta...", JOptionPane.YES_NO_OPTION);
+		if (option == 1) {
+			//And now a random message generator because why not?
+			Random rand = new Random();
+			
+			int randInt = rand.nextInt(5);
+			
+			switch(randInt) {
+			case 0: showMessage("One day is plenty of time!");
+				break;
+			case 1: showMessage("Okay! Let's do this... right?!");
+				break;
+			case 2: showMessage("I wish I was written in Python.");
+				break;
+			case 3: showMessage("Why did I implement this feature?");
+				break;
+			case 4: showMessage("The world may never know...");
+				break;
+			}
+			
+		}else{
+			newGame = true;
+		}
+		
+		if (newGame) {
+			showMessage("New size: " + size);
+			new SudokuDialog(size);
+		}
+	
     }
 
     /**

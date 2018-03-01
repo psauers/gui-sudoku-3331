@@ -92,7 +92,6 @@ public class BoardPanel extends JPanel {
         // WRITE YOUR CODE HERE ...
         // i.e., draw grid and squares.
         
-        g.setColor(oldColor);
         int[][] board1 = this.board.getGameBoard();
         
         //DRAWS THE ROWS AND COLUMNS
@@ -100,6 +99,10 @@ public class BoardPanel extends JPanel {
         int height = getSize().height;
         
         for (int i = 0; i < board1.length; i++) {
+        	g.setColor(Color.gray);
+        	if (i % (int) Math.sqrt((double) board1.length) == 0) {
+        		g.setColor(Color.black);
+        	}
         	//g.drawline(x1, y1, x2, y2);
         	//draws the line from (x1,y1) to (x2,y2)
         	//using the current color (defied at line 96)
