@@ -48,7 +48,7 @@ public class BoardPanel extends JPanel {
             public void mouseClicked(MouseEvent e) {
             	int xy = locateSquaree(e.getX(), e.getY());
             	if (xy >= 0) {
-            		listener.clicked(xy / 100, xy % 100);
+            		listener.clicked((xy / 100) + 1, (xy % 100) + 1);
             	}
             }
         });

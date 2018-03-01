@@ -83,12 +83,48 @@ public class SudokuDialog extends JFrame {
      */
     private void boardClicked(int x, int y) {
     	showMessage(String.format("Board clicked: x = %d, y = %d",  x, y));
-    	int number = Integer.parseInt(JOptionPane.showInputDialog("Please enter a number: "));
-    	if(board.makeMove(x,y,number)) {
-    		boardPanel.setBoard(board);
-    		showMessage("Success! Placed " + number + " at (" + x + "," + y + ").");
-    	}else {
-    		showMessage("Failure! Cannot place " + number + " at (" + x + "," + y + ").");
+    	try{
+    		int number = Integer.parseInt(JOptionPane.showInputDialog("Please enter a number: (0 to delete)"));
+	    	if (number == 0) {
+	    		board.removeNumber(x,y);
+	    		auxBoardPanel(board);
+	    	}if(board.makeMove(x,y,number)) {
+	    		auxBoardPanel(board);
+	    		showMessage("Success! Placed " + number + " at (" + x + "," + y + ").");
+	    		if (board.getComplete()) {
+	    			endSequence();
+	    		}
+	    	}else {
+	    		showMessage("You can't place " + number + " at (" + x + "," + y + ").");
+	    	}
+    	}catch(NumberFormatException nfe) {
+    		showMessage("That wasn't a number...");
+    		System.out.println("Error message: " + nfe.getMessage());
+    	}
+    }
+    
+    private void auxBoardPanel(Board board) {
+    	boardPanel.setBoard(board);
+    	boardPanel.repaint();
+    }
+    
+    private void endSequence() {
+    	showMessage("YES!");
+    	String[] options = {"New 4x4","New 9x9","Quit"};
+    	int response = JOptionPane.showOptionDialog(null, 
+    			("CONGRATULATIONS!\n\n Total moves: " + board.getMoves()),
+    			"WINNER!",
+    			JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE,
+    	        null, options, options[0]);
+    	switch(response) {
+    	case 0: new SudokuDialog(4);
+    		this.dispose();
+    		break;
+    	case 1: new SudokuDialog(9);
+    		this.dispose();
+    		break;
+    	case 2: System.exit(0);
+    		break;
     	}
     }
     
@@ -152,6 +188,7 @@ public class SudokuDialog extends JFrame {
 		if (newGame) {
 			showMessage("New size: " + size);
 			new SudokuDialog(size);
+			this.dispose();
 		}
 	
     }

@@ -135,46 +135,28 @@ public class Board{
 	 *	@return boolean
 	 **/
 	public boolean checkMove(int x, int y, int move){
-		if ((x < 1) || (y < 1) || (x > this.size) || (y > this.size)){
+		if (move == -1) {
+			return true;
+		}else if ((x < 1) || (y < 1) || (x > this.size) || (y > this.size)){
 			return false;
-		} else {
+		}else{
 			if (getXValues()[x][move] || getYValues()[y][move]) {
 				return false;
 			}
 		}return true;
 	}
 	
-	/**
-	 *	This method displays an error in response to invalid values from the user.
-	 *	It displays the x and y coordinates and attempted move.
-	 *	@param x the x coordinate 
-	 *	@param y the y coordinate 
-	 *	@param move the move being played 
-	 *	@return void
-	 **/
-	public void invalidMove(int x, int y, int move){
-		System.out.println("\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		System.out.println("\nSorry! Putting " + move + " in (" + x + "," + y + ") isn't a valid move! :(");
-		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	}
-	
-	/**
-	 *	This method displays the win sequence after being called 
-	 *	(which occurs when openTiles is equal to zero.)
-	 *	it also displays how many moves were taken in order to win before quitting.
-	 *	@return void
-	 **/
-	public void winSequence() {
-		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		System.out.println("YOU DID IT!");
-		System.out.println();
-		printBoard();
-		System.out.println("Guess we can quit now, huh? :)");
-		System.out.println("TOTAL MOVES TAKEN: " + getMoves());
-		if (getMoves() == (this.size * this.size)){
-			System.out.println("PERFECT GAME!");
-		}System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		System.exit(0);
+	public void removeNumber(int x, int y) {
+		updateMoves();
+		setOpenTiles(getOpenTiles() + 1);
+		int[][] temp = getGameBoard();
+		boolean[][] tempX = getXValues();
+		boolean[][] tempY = getYValues();
+		tempX[x][temp[y][x]] = tempY[y][temp[y][x]] = false;
+		temp[y][x] = 0;
+		setXValues(tempX);
+		setYValues(tempY);
+		setGameBoard(temp);
 	}
 	
 	/**
@@ -191,7 +173,13 @@ public class Board{
 	 **/
 	public boolean makeMove(int x, int y, int move) {
 		updateMoves();
-		if (checkMove(x,y,move)){
+		if (move == -1) {
+			//cheat code - initiates win sequence if -1 is entered.
+			setOpenTiles(0);
+			setComplete(true);
+			return true;
+		}if (checkMove(x,y,move)){
+			//checkMove was true, so we allow the move to be made.
 			int[][] temp = getGameBoard();
 			boolean[][] tempX = getXValues();
 			boolean[][] tempY = getYValues();
@@ -204,10 +192,9 @@ public class Board{
 			setGameBoard(temp);
 			if (getOpenTiles() == 0) {
 				setComplete(true);
-				winSequence();
 			}return true;
 		} else {
-			//invalidMove(x,y,move);
+			//you can't make this move!
 			return false;
 		}
 	}
