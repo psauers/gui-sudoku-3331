@@ -189,7 +189,7 @@ public class Board{
 	 *	@param move the move being played 
 	 *	@return void
 	 **/
-	public void makeMove(int x, int y, int move) {
+	public boolean makeMove(int x, int y, int move) {
 		updateMoves();
 		if (checkMove(x,y,move)){
 			int[][] temp = getGameBoard();
@@ -205,9 +205,10 @@ public class Board{
 			if (getOpenTiles() == 0) {
 				setComplete(true);
 				winSequence();
-			}
+			}return true;
 		} else {
-			invalidMove(x,y,move);
+			//invalidMove(x,y,move);
+			return false;
 		}
 	}
 		

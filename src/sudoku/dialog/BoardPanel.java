@@ -85,7 +85,7 @@ public class BoardPanel extends JPanel {
         squareSize = Math.min(dim.width, dim.height) / board.getSize();
 
         // draw background
-        final Color oldColor = g.getColor();
+        //final Color oldColor = g.getColor(); this is never used?
         g.setColor(boardColor);
         g.fillRect(0, 0, squareSize * board.getSize(), squareSize * board.getSize());
 
@@ -105,12 +105,21 @@ public class BoardPanel extends JPanel {
         	}
         	//g.drawline(x1, y1, x2, y2);
         	//draws the line from (x1,y1) to (x2,y2)
-        	//using the current color (defied at line 96)
+        	//using the current color (defined at line 96)
         	g.drawLine(0, i * squareSize, height, i * squareSize);	//rows
         	g.drawLine(i * squareSize, 0, i * squareSize, width);	//columns
         }
+        int[][] numBoard = board.getGameBoard();
         
         //TODO: Draw the numbers
+        int midpoint = squareSize / 2;
+        for (int i = 1; i < numBoard.length; i++) {
+        	for (int j = 1; j < numBoard[0].length; j++) {
+        		if (numBoard[i][j] != 0) {
+        			g.drawString(String.valueOf(numBoard[i][j]),((j-1)*squareSize) + midpoint,((i-1)*squareSize) + midpoint);
+        		}
+        	}
+        }
     }
 
 }

@@ -82,13 +82,14 @@ public class SudokuDialog extends JFrame {
      * @param y 0-based column index of the clicked square.
      */
     private void boardClicked(int x, int y) {
-    	int size = board.getSize();
-    	if (size == 4) {
-    		//do stuff
-    	}else if (size == 9) {
-    		//do stuff
-    	}
     	showMessage(String.format("Board clicked: x = %d, y = %d",  x, y));
+    	int number = Integer.parseInt(JOptionPane.showInputDialog("Please enter a number: "));
+    	if(board.makeMove(x,y,number)) {
+    		boardPanel.setBoard(board);
+    		showMessage("Success! Placed " + number + " at (" + x + "," + y + ").");
+    	}else {
+    		showMessage("Failure! Cannot place " + number + " at (" + x + "," + y + ").");
+    	}
     }
     
     /**
