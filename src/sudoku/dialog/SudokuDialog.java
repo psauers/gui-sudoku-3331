@@ -24,9 +24,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-import java.applet.*;
-import java.net.*;
-
 import java.util.Random;
 
 import sudoku.model.Board;
@@ -45,7 +42,6 @@ public class SudokuDialog extends JFrame {
     private final static Dimension DEFAULT_SIZE = new Dimension(310, 430);
 
     private final static String IMAGE_DIR = "/image/";
-    private final static String SOUND_DIR = "/sound/";
     
     private JFrame frame = new JFrame();
 
@@ -151,18 +147,7 @@ public class SudokuDialog extends JFrame {
     	boardPanel.repaint();
     }
     
-    private void playClip(String pathname) {
-    	try {
-    		System.out.println(SOUND_DIR + pathname);
-    		AudioClip clip = Applet.newAudioClip(new URL("file://" + SOUND_DIR + pathname));
-    		clip.play();
-    	}catch (MalformedURLException m) {
-    		System.out.println(m.getMessage());
-    	}
-    }
-    
     private void endSequence() {
-    	playClip("wingame.wav");
     	showMessage("YES!");
     	String[] options = {"New 4x4","New 9x9","Quit"};
     	int response = JOptionPane.showOptionDialog(null, 
