@@ -71,7 +71,11 @@ public class SudokuDialog extends JFrame {
     	this(DEFAULT_SIZE, size);
     }
     
-    /** Create a new dialog of the given screen dimension. */
+    /** Create a new dialog of the given screen dimension.
+     *   
+     *  @param dim dimension
+     *  @param size size of board
+     *  */
     public SudokuDialog(Dimension dim, int size) {
         super("Sudoku");
         setSize(dim);
@@ -267,7 +271,9 @@ public class SudokuDialog extends JFrame {
         add(msgBar, BorderLayout.SOUTH);
     }
       
-    /** Create a control panel consisting of new and number buttons. */
+    /** Create a control panel consisting of new and number buttons. 
+     * @return content 
+     * */
     private JPanel makeControlPanel() {
     	JPanel newButtons = new JPanel(new FlowLayout());
         JButton new4Button = new JButton("New (4x4)");
@@ -305,7 +311,10 @@ public class SudokuDialog extends JFrame {
         return content;
     }
 
-    /** Create an image icon from the given image file. */
+    /** Create an image icon from the given image file. 
+     * @param filename path to file
+     * @return null returns image icon
+     * */
     private ImageIcon createImageIcon(String filename) {
         URL imageUrl = getClass().getResource(IMAGE_DIR + filename);
         if (imageUrl != null) {
