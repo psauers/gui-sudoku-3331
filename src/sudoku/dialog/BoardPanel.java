@@ -41,7 +41,11 @@ public class BoardPanel extends JPanel {
     /** Width and height of a square in pixels. */
     private int squareSize;
 
-    /** Create a new board panel to display the given board. */
+    /** Create a new board panel to display the given board. 
+     * 
+     * @param board the game board
+     * @param listener listens to mouse click
+     * **/
     public BoardPanel(Board board, ClickListener listener) {
         this.board = board;
         addMouseListener(new MouseAdapter() {
@@ -54,16 +58,21 @@ public class BoardPanel extends JPanel {
         });
     }
 
-    /** Set the board to be displayed. */
+    /** Set the board to be displayed. 
+     * @param board sets board
+     * */
     public void setBoard(Board board) {
     	this.board = board;
     }
     
-    /**
+   /**
      * Given a screen coordinate, return the indexes of the corresponding square
      * or -1 if there is no square.
      * The indexes are encoded and returned as x*100 + y, 
      * where x and y are 0-based column/row indexes.
+     * @param x for coordinate x	
+     * @param y for coordinate y
+     * @return int return indexes of corresponding square
      */
     private int locateSquaree(int x, int y) {
     	if (x < 0 || x > board.getSize() * squareSize
