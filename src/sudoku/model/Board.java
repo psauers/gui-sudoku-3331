@@ -90,7 +90,7 @@ public class Board{
 	
 	/**
 	 *	Updates the openTiles variable, used in determining the current state (win/lose) of the game.
-	 *	@return void
+	 *	
 	 **/
 	public void updateOpenTiles(){
 		this.openTiles = getOpenTiles() - 1;
@@ -98,7 +98,7 @@ public class Board{
 	
 	/**
 	 *	Updates the moves variable, used as a basic stat.
-	 *	@return void
+	 *	
 	 **/
 	public void updateMoves(){
 		this.moves = getMoves() + 1;
@@ -145,7 +145,13 @@ public class Board{
 			}
 		}return true;
 	}
-	
+	/**
+	 * Method allows user to remove numbers from board
+	 * sets open tiles +1, resets square on game board 
+	 * and specific index in x and y array. 
+	 * @param x for x coordinate
+	 * @param y for y coordinate
+	 */
 	public void removeNumber(int x, int y) {
 		updateMoves();
 		setOpenTiles(getOpenTiles() + 1);
@@ -202,7 +208,7 @@ public class Board{
 	/**
 	 *	This method prints the current board, along with printing
 	 *	the current game progress (by displaying openTiles and moves).
-	 *	@return void
+	 *	
 	 **/	
 	public void printBoard() {
 		if (getOpenTiles() != 0) {
