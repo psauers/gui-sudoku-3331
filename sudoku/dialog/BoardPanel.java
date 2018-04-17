@@ -36,14 +36,18 @@ public class BoardPanel extends JPanel {
 	private static final Color boardColor = new Color(247, 223, 150);
 
     /** Board to be displayed. */
-    private Board board;
+    private sudoku.dialog.Board board;
 
     /** Width and height of a square in pixels. */
     private int squareSize;
 
-    /** Create a new board panel to display the given board. */
-    public BoardPanel(Board board, ClickListener listener) {
-        this.board = board;
+    /** Create a new board panel to display the given board. 
+     * 
+     * @param board2 the game board
+     * @param listener listens to mouse click
+     * **/
+    public BoardPanel(sudoku.dialog.Board board2, ClickListener listener) {
+        this.board = board2;
         addMouseListener(new MouseAdapter() {
             public void mouseClicked(MouseEvent e) {
             	int xy = locateSquaree(e.getX(), e.getY());
@@ -54,9 +58,11 @@ public class BoardPanel extends JPanel {
         });
     }
 
-    /** Set the board to be displayed. */
-    public void setBoard(Board board) {
-    	this.board = board;
+    /** Set the board to be displayed. 
+     * @param board2 sets board
+     * */
+    public void setBoard(sudoku.dialog.Board board2) {
+    	this.board = board2;
     }
     
     /**
@@ -64,6 +70,9 @@ public class BoardPanel extends JPanel {
      * or -1 if there is no square.
      * The indexes are encoded and returned as x*100 + y, 
      * where x and y are 0-based column/row indexes.
+     * @param x for coordinate x	
+     * @param y for coordinate y
+     * @return int return indexes of corresponding square
      */
     private int locateSquaree(int x, int y) {
     	if (x < 0 || x > board.getSize() * squareSize
@@ -91,6 +100,35 @@ public class BoardPanel extends JPanel {
 
         // WRITE YOUR CODE HERE ...
         // i.e., draw grid and squares.
+        g.setColor(oldColor);
+        int[][] board1 = this.board.getGameBoard();
+        
+        //DRAWS THE ROWS AND COLUMNS
+        int width = getSize().width;
+        int height = getSize().height;
+        
+        for (int i = 0; i < board1.length; i++) {
+        	g.setColor(Color.gray);
+        	if (i % (int) Math.sqrt((double) board1.length) == 0) {
+        		g.setColor(Color.black);
+        	}
+        	//g.drawline(x1, y1, x2, y2);
+        	//draws the line from (x1,y1) to (x2,y2)
+        	//using the current color (defined at line 96)
+        	g.drawLine(0, i * squareSize, height, i * squareSize);	//rows
+        	g.drawLine(i * squareSize, 0, i * squareSize, width);	//columns
+        }
+        int[][] numBoard = board.getGameBoard();
+        
+        //TODO: Draw the numbers
+        int midpoint = squareSize / 2;
+        for (int i = 0; i < numBoard.length; i++) {
+        	for (int j = 0; j < numBoard[0].length; j++) {
+        		if (numBoard[i][j] != 0) {
+        			g.drawString(String.valueOf(numBoard[i][j]),((i)*squareSize) + midpoint,((j)*squareSize) + midpoint);
+        		}
+        	}
+        }
     }
 
 }

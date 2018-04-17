@@ -1,222 +1,357 @@
-package sudoku.model;
-/**
-*	Phillip Sauers
-*	CS 3331
-*	3/1/18
-*	HW 2
-**/
+package sudoku.dialog;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.text.ParseException;
+import java.util.Arrays;
+import java.util.Iterator;
+
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+
 
 public class Board{
-	
+	private int moves;   //Playable Moves
+	private int rowSize; //RowQuad
+	private int colSize; //ColQuad
+	private int [][] puzzle;
+	private int [][] temp;
 	private int size;
-	private int[][] gameBoard;
-	private int openTiles;
-	private int moves;
-	private boolean[][] xValues;
-	private boolean[][] yValues;
+	private boolean[][] writable; //used if puzzle is pre-loaded so user can't overwrite pre-loaded numbers
+	//Constructors
 	
-	public Board(int size){
-		this.size = size;
-		this.gameBoard = createBoard(size);
-		this.openTiles = size * size; 						//number of tiles is size squared (4x4 = 16, etc.)
-		this.moves = 0;
-		this.xValues = new boolean[size+1][size+1];			//we change to +1 so we can more easily check if a number has been played.
-		this.yValues = new boolean[size+1][size+1];
+	public Board(){
+		init(4);
 	}
 	
-	//Default constructor in case of no arguments...
-	public Board() {
-		this.size = 4;
-		this.gameBoard = createBoard(4);
-		this.openTiles = 16;
-		this.moves = 0;
-		this.xValues = new boolean[4][4];
-		this.yValues = new boolean[4][4];
+	public Board(int size){
+		init(size);	
+	}
+	//Getters
+	public int getSize(){
+		return size;
+	} 
+	
+	public int getMoves(){
+		return moves;
+	}
+	
+	public int[][] getGameBoard(){
+		return puzzle;
+	}
+	public boolean getComplete(){
+		return (moves == 0);
 	}
 	
 	//setters
+	public void zeroMoves(){
+		 this.moves = 0;
+	}
 	public void setGameBoard(int[][] gameBoard) {
-		this.gameBoard = gameBoard;
+		this.puzzle = gameBoard;
 	}
-	
-	public void setOpenTiles(int openTiles) {
-		this.openTiles = openTiles;
+	public void setWriteBoard(boolean[][] gameBoard) {
+		this.writable = gameBoard;
 	}
-	
-	public void setXValues(boolean[][] xValues) {
-		this.xValues = xValues;
+	//Array Index Range
+	public int range(int max){
+		return (int)(Math.random()* max);
 	}
-	
-	public void setYValues(boolean[][] yValues) {
-		this.yValues = yValues;
-	}
-	
-	//getters
-	public int[][] getGameBoard() {
-		return this.gameBoard;
-	}
-	
-	public int getOpenTiles() {
-		return this.openTiles;
-	}
-	
-	public int getMoves() {
-		return this.moves;
-	}
-	
-	public int getSize() {
-		return this.size;
-	}
-	
-	public boolean[][] getXValues() {
-		return this.xValues;
-	}
-	
-	public boolean[][] getYValues() {
-		return this.yValues;
-	}
-	
-	/**
-	 *	Updates the openTiles variable, used in determining the current state (win/lose) of the game.
-	 *	@return void
-	 **/
-	public void updateOpenTiles(){
-		this.openTiles = getOpenTiles() - 1;
-	}
-	
-	/**
-	 *	Updates the moves variable, used as a basic stat.
-	 *	@return void
-	 **/
-	public void updateMoves(){
-		this.moves = getMoves() + 1;
-	}
-	
-	/**
-	 *	Method checks all user inputted values in order to make sure they can be played.
-	 *	it checks: the coordinates and moves (to make sure they're within range, 1 to size);
-	 *	should the above check work, it also checks the boolean arrays to ensure a number isn't already played.
-	 *	@param size the size of the board
-	 *	@return int[][]
-	 **/
-	public int[][] createBoard(int size){
-		int[][] newBoard = new int[size+1][size+1];
-		for (int i = 0; i < newBoard.length; i++){
-			for (int j = 0; j < newBoard[i].length; j++) {
-				if (i == 0) {
-					newBoard[i][j] = j;
-				} else if (j == 0) {
-					newBoard[i][j] = i;
+
+	//determine size and layout
+	private void init(int size){
+		this.size 	= size;
+		moves 		= (size*size)+1;
+		puzzle 		= new int[size][size];
+		temp 		= new int[size][size];
+		writable 	= new boolean[size][size];
+		for(int x = 0; x < puzzle.length; x++){
+			Arrays.fill(writable[x],true);
+			Arrays.fill(puzzle[x],0);
+		}
+		if(puzzle.length%2 == 0){
+			rowSize = colSize = 2;
+			}
+		else if(puzzle.length%3 == 0){
+			rowSize = colSize = 3;
+			}
+		}//end init
+
+	//Check if player has made a valid move
+	public boolean validMove(int number, int inputI, int inputJ, boolean forSolving){
+		int rowQuad = 0;
+		int colQuad = 0;
+		//Figures out which quadrant it is in
+		for(int i = rowSize; i <= puzzle.length; i += rowSize){
+			if(inputI < i){
+				rowQuad = (i - rowSize);
+				break;
+			}
+		}
+		//After it figures out which quadrant it is in, checks column
+		for(int j = colSize; j <= puzzle.length; j += colSize){
+			if(inputJ < j){
+				colQuad = (j - colSize);
+				break;
+			}
+		}
+		//checks the row quadrant 
+		for(int i = rowQuad; i < rowSize; i++){
+			for(int j = colQuad; j < colSize; j++){
+				if( (i== inputI && j == inputJ)){
+					if(writable[i][j]==false){
+						return false;
+					}
+				}
+					else if(puzzle[i][j] == number){
+						return false;
+					}
+			}
+		}
+		//ROW
+		for(int i = inputI, j = 0; j < puzzle.length; j++){
+			if( (i == inputI && j == inputJ)){
+				if(writable[i][j]==false){
+					return false;
 				}
 			}
-		}newBoard[0][0] = 0;
-	return newBoard;
-	}
-	
-	/**
-	 *	Method checks all user inputted values in order to make sure they can be played.
-	 *	it checks: the coordinates and moves (to make sure they're within range, 1 to size);
-	 *	should the above check work, it also checks the boolean arrays to ensure a number isn't already played.
-	 *	@param x the x coordinate 
-	 *	@param y the y coordinate 
-	 *	@param move the move being played 
-	 *	@return boolean
-	 **/
-	public boolean checkMove(int x, int y, int move){
-		if ((x < 1) || (y < 1) || (x > this.size) || (y > this.size)){
-			return false;
-		} else {
-			if (getXValues()[x][move] || getYValues()[y][move]) {
-				return false;
+				else if(puzzle[i][j] == number){
+					return false;
+				}
 			}
-		}return true;
-	}
-	
-	/**
-	 *	This method displays an error in response to invalid values from the user.
-	 *	It displays the x and y coordinates and attempted move.
-	 *	@param x the x coordinate 
-	 *	@param y the y coordinate 
-	 *	@param move the move being played 
-	 *	@return void
-	 **/
-	public void invalidMove(int x, int y, int move){
-		System.out.println("\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		System.out.println("\nSorry! Putting " + move + " in (" + x + "," + y + ") isn't a valid move! :(");
-		System.out.println("\n~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-	}
-	
-	/**
-	 *	This method displays the win sequence after being called 
-	 *	(which occurs when openTiles is equal to zero.)
-	 *	it also displays how many moves were taken in order to win before quitting.
-	 *	@return void
-	 **/
-	public void winSequence() {
-		System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		System.out.println("YOU DID IT!");
-		System.out.println();
-		printBoard();
-		System.out.println("Guess we can quit now, huh? :)");
-		System.out.println("TOTAL MOVES TAKEN: " + getMoves());
-		if (getMoves() == (this.size * this.size)){
-			System.out.println("PERFECT GAME!");
-		}System.out.println("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~");
-		System.exit(0);
-	}
-	
-	/**
-	 *	This method attempts to make a move by taking the coordinates for the x and y,
-	 *	along with the move, and attempting to check it before placing it there.
-	 *	If it can be placed there, the move is made onto the board and input into
-	 *	the boolean arrays; openTiles and moves are updated; and the game checks
-	 *	whether a win sequence should be initiated here.
-	 *	If move is invalid, invalidMove is called.
-	 *	@param x the x coordinate 
-	 *	@param y the y coordinate 
-	 *	@param move the move being played 
-	 *	@return void
-	 **/
-	public void makeMove(int x, int y, int move) {
-		updateMoves();
-		if (checkMove(x,y,move)){
-			int[][] temp = getGameBoard();
-			boolean[][] tempX = getXValues();
-			boolean[][] tempY = getYValues();
-			if (temp[y][x] == 0) {
-				updateOpenTiles();
-			}temp[y][x] = move;
-			tempX[x][move] = tempY[y][move] = true;
-			setXValues(tempX);
-			setYValues(tempY);
-			setGameBoard(temp);
-			if (getOpenTiles() == 0) {
-				winSequence();
+		//COL
+		for(int i = 0, j = inputJ; i < puzzle.length; i++){
+			if( (i== inputI && j == inputJ)){
+				if(writable[i][j]==false){
+					return false;
+				}
 			}
-		} else {
-			invalidMove(x,y,move);
+				else if(puzzle[i][j] == number){
+					return false;
+				}
 		}
-	}
 		
-	/**
-	 *	This method prints the current board, along with printing
-	 *	the current game progress (by displaying openTiles and moves).
-	 *	@return void
-	 **/	
-	public void printBoard() {
-		if (getOpenTiles() != 0) {
-			System.out.println("\n\nCurrent open tiles: " + getOpenTiles() + "  |  Total moves: " + getMoves() + "  |  Current board:");
-		}for (int i = 0; i < gameBoard.length; i++) {
-			for (int j = 0; j < gameBoard[i].length; j++) {
-				if (gameBoard[i][j] != 0) {
-					System.out.print(gameBoard[i][j]);
-				} else {
-					System.out.print(" ");
-				}System.out.print(" | ");
-			}System.out.print("\n--+");
-			for (int k = 0; k < getSize(); k++) {
-				System.out.print("---+");
-			}System.out.println();
+		if(forSolving){
+			puzzle[inputI][inputJ]= number;
+			moves --;
+		}
+		else{
+			
+		}
+		return true;
+	}//End validMove
+	
+	//Remove Move
+	public boolean removeNumber(int inputI, int inputJ){
+		if(!writable[inputI][inputJ]){
+			return false;
+		}
+		puzzle[inputI][inputJ] = 0;
+		moves ++;
+		return true;
+	}//end RemoveMove
+	
+	//use for strategy pattern
+	public void randomNumberGenerator(){
+
+	}
+	//checks if puzzle is solvable
+	public boolean solvable() {
+		for (int i = 0; i < puzzle.length; i++) {
+				temp[i] = Arrays.copyOf(puzzle[i], puzzle[i].length);
+		}
+		return solve(false);
+	}
+	
+	//solves puzzle
+	public boolean solve(boolean forSolving) {
+		if(forSolving){
+			temp = getGameBoard();
+		}
+	    for (int i = 0; i < temp.length; i++) {
+	        for (int j = 0; j < temp[i].length; j++) {
+	            if (temp[i][j] == 0) {
+	                for (int k = 1; k <= size; k++) {
+	                    temp[i][j] = k;
+	                    if (validMove(k, i, j, forSolving) && solve(forSolving)) {
+	                        return true;
+	                    }
+	                    temp[i][j] = 0;
+	                }
+	                return false;
+	            }
+	        }
+	    }
+	    if(forSolving){
+	    setGameBoard(temp);
+	    zeroMoves();
+	    }
+	    return true;
+	}
+	
+	/*
+	 * FOR PHILLIP, MAKE SURE TO CREATE AND SET THE BOOLEAN ARRAYS
+	 * this randomly creates a premade puzzle for user to solve.
+	 * you can use cheon's jar file that he sent in the first hw, to 
+	 * use puzzles as reference to make sure that they are solvable. 
+	 * Set number puzzles for size 9 and boolean arrays.
+	 * size 4 is already created.
+	 * for size 4 all you need to do is set the boolean arrays.
+	 */
+	public void preFilledPuzzle(){
+		
+		int random = range(size);
+	
+		if(size == 4){	
+			switch(random) {
+			case 0: 
+				int [][]temp =
+					{
+						{0,0,0,1},
+						{0,2,4,0},
+						{2,1,3,0},
+						{4,0,1,0}
+					};
+				boolean [][]tempwritable = 
+						{
+							{true,true,true,false},
+							{true,false,false,true},
+							{false,false,false,true},
+							{false,true,false,true}
+						};
+				setGameBoard(temp);
+				setWriteBoard(tempwritable);
+				break;
+			case 1:
+				int [][]temp2 =
+					{
+						{0,2,1,0},
+						{4,0,0,3},
+						{1,0,0,2},
+						{0,4,3,0}
+					};
+				setGameBoard(temp2);
+				break;
+			case 2: 
+				int [][]temp3 =
+					{
+						{0,0,1,0},
+						{3,1,4,0},
+						{1,3,2,0},
+						{0,0,0,1}
+					};
+				setGameBoard(temp3);
+				break;
+			case 3:
+				int [][]temp4 =
+					{
+						{1,2,0,0},
+						{0,0,2,1},
+						{0,4,0,3},
+						{3,0,4,0}
+					};
+				setGameBoard(temp4);
+				break;
+			case 4:
+				int [][]temp5 =
+					{
+						{4,0,0,0},
+						{0,2,3,0},
+						{0,1,4,3},
+						{3,0,2,0}
+					};
+				setGameBoard(temp5);
+				break;
+			default:
+				break;
+			}
+		
+		}
+		else if(size == 9){
+		
+			switch(random) {
+			case 0: 
+				int [][]temp =
+						{
+							{0,4,9,5,0,0,7,2,0},
+							{3,0,0,4,0,2,1,9,0},
+							{0,0,2,0,9,3,4,0,0},
+							{0,6,7,3,0,0,0,0,2},
+							{0,0,0,6,7,1,0,0,0},
+							{0,9,0,0,2,4,6,0,7},
+							{7,0,1,9,3,0,2,8,0},
+							{9,0,0,0,0,7,0,3,0},
+							{0,3,6,0,0,0,9,7,1},
+						};
+				setGameBoard(temp);
+				break;
+			case 1: 
+				int [][]temp2 =
+						{
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+							{0,0,0,0,0,0,0,0,0},
+						};
+				setGameBoard(temp2);
+				break;
+			case 2:
+				int [][]temp3 =
+					{
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0}
+					};
+				setGameBoard(temp3);
+				break;
+			case 3: 
+				int [][]temp4 =
+					{
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0}
+					};
+				setGameBoard(temp4);
+				break;
+			case 4: 
+				int [][]temp5 =
+					{
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0},
+						{0,0,0,0,0,0,0,0,0}
+					};
+				setGameBoard(temp5);
+				break;
+			default:
+				break;
+			}
 		}
 	}
-}	
+}//endclass
